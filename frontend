@@ -1,0 +1,49 @@
+git init
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Asistente Virtual</title>
+<style>
+  body { font-family: Arial; background: #f0f0f0; display: flex; justify-content: center; padding-top: 50px; }
+  #chat { width: 400px; background: white; border-radius: 10px; box-shadow: 0 0 10px #ccc; padding: 10px; }
+  #mensajes { height: 300px; overflow-y: auto; border: 1px solid #eee; padding: 10px; margin-bottom: 5px; }
+  .mensaje { margin-bottom: 10px; }
+  .usuario { font-weight: bold; color: #007BFF; }
+  .asistente { font-weight: bold; color: #28A745; }
+  #input { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+</style>
+</head>
+<body>
+<div id="chat">
+  <div id="mensajes"></div>
+  <input id="input" type="text" placeholder="Escribe un mensaje..." />
+</div>
+
+<script>
+const input = document.getElementById('input');
+const mensajesDiv = document.getElementById('mensajes');
+
+input.addEventListener('keydown', async (e) => {
+  if(e.key === 'Enter' && input.value.trim() !== ''){
+    const mensaje = input.value;
+    mensajesDiv.innerHTML += `<div class="mensaje usuario">Tú: ${mensaje}</div>`;
+    input.value = '';
+
+    try {
+      const res = await fetch('/api/mensaje', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mensaje })
+      });
+      const data = await res.json();
+      mensajesDiv.innerHTML += `<div class="mensaje asistente">Asistente: ${data.respuesta}</div>`;
+      mensajesDiv.scrollTop = mensajesDiv.scrollHeight;
+    } catch (error) {
+      mensajesDiv.innerHTML += `<div class="mensaje asistente">Asistente: Error al conectarse al servidor.</div>`;
+    }
+  }
+});
+</script>
+</body>
+</html>
